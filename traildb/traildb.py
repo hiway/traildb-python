@@ -371,23 +371,21 @@ class TrailDB(object):
         """:returns: The number of trails in the TrailDB."""
         return self.num_trails
 
-    def trails(self, selected_uuids=None, distinct_cursors=True, **kwds):
+    def trails(self, selected_uuids=None, reuse_cursors=False, **kwds):
         """
         Iterate over all trails in this TrailDB.
 
         :param selected_uuids: If passed, only go through the UUIDs passed in
           this argument. It should be an iterable that yields hex UUIDs.
 
-        :param distinct_cursors: Normally this function shares a single cursor
-          for all yielded trails. If you don't consume the events from one
-          trail immediately before you call :py:meth:`~TrailDB.trails()` again, the underlying
-          cursor object will be re-used for next trail. However, if
-          disinct_cursors is set to `True`, a new cursor is created for every
-          new trail. Cursors are relatively heavy entities so while using
-          ``distinct_cursors=True`` makes this function slightly safer, it
-          also makes it *much* less efficient.
-          The default is `True`. This preserves backwards compatibility with older
-          versions of TrailDB.
+        :param reuse_cursors: If `False`, trails() creates a new cursor
+           for every single trail it iterates over. You can change this
+           behavior by setting ``reuse_cursors=True``. Now, the same underlying
+           cursor object will be reused for all trails yielded from this
+           function. This is a major performance improvement but it means
+           you cannot save the iterators from trails() and iterate over them
+           later; you must consume them immediately before you go to next item
+           from trails().
 
         :returns: Yields ``(uuid, events)`` pairs.
 
@@ -402,7 +400,7 @@ class TrailDB(object):
             print(uuid)
         
         """
-        if not distinct_cursors:
+        if reuse_cursors:
             cursor = self.cursor(**kwds)
 
         if selected_uuids is not None:
@@ -412,14 +410,14 @@ class TrailDB(object):
                 except IndexError:
                     continue
 
-                if distinct_cursors:
+                if not reuse_cursors:
                     cursor = self.cursor(**kwds)
 
                 cursor.get_trail(i)
                 yield uuid, cursor
         else:
             for i in xrange(len(self)):
-                if distinct_cursors:
+                if not reuse_cursors:
                     cursor = self.cursor(**kwds)
 
                 cursor.get_trail(i)
