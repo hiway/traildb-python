@@ -371,7 +371,7 @@ class TrailDB(object):
         """:returns: The number of trails in the TrailDB."""
         return self.num_trails
 
-    def trails(self, selected_uuids=None, distinct_cursors=False, **kwds):
+    def trails(self, selected_uuids=None, distinct_cursors=True, **kwds):
         """
         Iterate over all trails in this TrailDB.
 
@@ -382,10 +382,12 @@ class TrailDB(object):
           for all yielded trails. If you don't consume the events from one
           trail immediately before you call :py:meth:`~TrailDB.trails()` again, the underlying
           cursor object will be re-used for next trail. However, if
-          disinct_cursors is set to True, a new cursor is created for every
+          disinct_cursors is set to `True`, a new cursor is created for every
           new trail. Cursors are relatively heavy entities so while using
           ``distinct_cursors=True`` makes this function slightly safer, it
           also makes it *much* less efficient.
+          The default is `True`. This preserves backwards compatibility with older
+          versions of TrailDB.
 
         :returns: Yields ``(uuid, events)`` pairs.
 
