@@ -1,11 +1,18 @@
+sudo: required
+
 language: python
 
 python:
-    - 2.7
-
-script:
-    - ./runtests.sh
+  - 2.7
+  - 3.3
+  - 3.4
+  - 3.5
+  - 3.6
+  - pypy
+  - pypy3.5
 
 before_install:
-    - sudo apt-get -y install libarchive-dev libjudy-dev pkg-config
-    - ./travisdeps.sh
+  - ./travisdeps.sh
+
+script:
+  - ./runtests.sh
