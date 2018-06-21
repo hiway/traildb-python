@@ -37,7 +37,10 @@ if os.name == "posix" and sys.platform == "darwin":
         lib = CDLL('/usr/local/lib/libtraildb.dylib')
 elif os.name == "posix" and "linux" in sys.platform:
     lib = CDLL('libtraildb.so')
-
+elif os.name == "posix" and "freebsd" in sys.platform:
+    lib = CDLL('libtraildb.so')
+else:
+    raise ImportError('Unknown/unsupported platform:', os.name, sys.platform)
 
 def api(fun, args, res=None):
     fun.argtypes = args
